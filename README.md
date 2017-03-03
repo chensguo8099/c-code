@@ -1,2 +1,2 @@
 # c_study
-create this repository to store my C code
+create this repository to study C and to find some C questions.
