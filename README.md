@@ -1,2 +1,3 @@
 # c_study
-create this repository to study C and to find some C questions.
+		printf("welcome to my c code repository\n");
+##### C代码练习仓库
