@@ -1,3 +1,5 @@
 # C CODE
 ###### C代码练习仓库
-		printf("welcome to my c code repository\n");
+
+##### int_char_test.c
+###### int指针类型的b指向char类型的a时，剩余三个字节为随机数，所以该代码运行结果不是97，是随机值。
