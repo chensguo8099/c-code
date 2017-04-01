@@ -1,4 +1,5 @@
 #include "gcsort.h"
+#include "generate_data.h"
 
 SoftArray* generate_data(int arrsize, int top_max){
 	int cnt = 0;

@@ -1,4 +1,5 @@
 #include "gcsort.h"
+#include "generate_data.h"
 
 int main(int argc, char **argv){
 	SoftArray *tmp = NULL;

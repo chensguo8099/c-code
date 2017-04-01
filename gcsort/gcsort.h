@@ -12,7 +12,6 @@ typedef struct softarray{
 	int array[];
 }SoftArray;//声明SoftArray
 
-SoftArray* generate_data(int, int);
 int compar_num(const void *, const void *);
 void msort(SoftArray*, int, int (*)(const void *,const void*));
 
