@@ -12,5 +12,7 @@ int main(int argc, char **argv){
 	for(start = 0; start < atoi(argv[1]); start++)
 		printf("%d ", tmp->array[start]);
 
+	free(tmp);
+	tmp = NULL;
 	return 0;
 }
