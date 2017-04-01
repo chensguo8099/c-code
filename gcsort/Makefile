@@ -1,7 +1,7 @@
 CC=gcc
 FLAG=-c
 OUTPUT=-o
-ALL=gcsort.o main.o
+ALL=gcsort.o generate_data.o main.o
 OBJ=gcsort
 
 $(OBJ):$(ALL)
