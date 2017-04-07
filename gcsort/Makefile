@@ -1,17 +1,17 @@
-CC=gcc
+CC=g++
 FLAG=-c
 OUTPUT=-o
-ALL=gcsort.o generate_data.o main.o
-OBJ=gcsort
+ALL=gcsort.o generate_data.o test_generate_data.o test_gcsort.o libgtest.a -lpthread
+OBJ=test
 
 $(OBJ):$(ALL)
 	$(CC) $^  $(OUTPUT) $@ 
 %.o:%.c
-	$(CC) $(FLAG) $< $(OUTPUT) $@ 
+	$(CC) $(FLAG) $< $(OUTPUT) $@
 
 .PHONY:clean
 clean:
-	@rm -rf *.o gcsort
+	@rm -rf *.o test
 	@echo "del ok"
 	
 

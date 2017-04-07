@@ -1,12 +1,14 @@
 #ifndef _GCSORT_H
 #define	_GCSORT_H
 
-#include <stdio.h>
+#include <iostream>
+#include <cstdio>
 #include <stdlib.h>
 #include <time.h>
 
 #define RANDOM(x) (rand()%x+1)
 
+#pragma once
 typedef struct softarray{
 	int len;
 	int array[];

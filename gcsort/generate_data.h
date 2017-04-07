@@ -3,6 +3,6 @@
 
 #define RANDOM(x) (rand()%x+1)
 
-SoftArray* generate_data(int, int);
+SoftArray* generate_data(int arrsize, int top_max);
 
 #endif
