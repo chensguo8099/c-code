@@ -1,3 +1,4 @@
+/*十进制转八进制*/
 #include <stdio.h>
 
 int main(){
