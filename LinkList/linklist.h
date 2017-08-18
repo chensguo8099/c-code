@@ -2,11 +2,15 @@
 #define _LINKLIST_H_
 
 typedef void LinkList;
+
 typedef struct _tag_LinkListNode LinkListNode;
+
 struct _tag_LinkListNode
 {
-    LinkListNode* next;
+	LinkListNode* next;
+	//struct _tag_LinkListNode* next;
 };
+
 
 LinkList* LinkList_Create();
 
