@@ -27,6 +27,7 @@
 2. 将游标重置指向链表中的第一个数据元素
 3. 将游标移动指向到链表中的下一个数据元素
 4. 直接指定删除链表中的某个数据元素
+
 CircleListNode* CircleList_Current(CircleList* list);
 CircleListNode* CircleList_Reset(CircleList* list);
 CircleListNode* CircleList_Next(CircleList* list);
