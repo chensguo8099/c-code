@@ -29,8 +29,11 @@
 4. 直接指定删除链表中的某个数据元素
 
 CircleListNode* CircleList_Current(CircleList* list);
+
 CircleListNode* CircleList_Reset(CircleList* list);
+
 CircleListNode* CircleList_Next(CircleList* list);
+
 CircleListNode* CircleList_DeleteNode(CircleList* list, CircleListNode* node);
 
 小结
