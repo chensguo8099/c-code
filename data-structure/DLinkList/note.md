@@ -47,7 +47,7 @@ DLinkListNode* DLinkList_Pre(DLinkList* list);
 DLinkListNode* DLinkList_DeleteNode(DLinkList* list, DLinkListNode* node);
 
 
-小结
+### 小结
 双向链表在单链表的基础上增加了指向前驱的指针
 功能上双向链表可以完全取代单链表的使用
 循环链表的Next, Pre和Current操作可以高效的遍历链表中的所有元素
