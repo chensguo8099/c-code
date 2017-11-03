@@ -1,15 +1,25 @@
-C++教程：http://www.runoob.com/cplusplus/cpp-tutorial.html
+## C++教程：
+
+http://www.runoob.com/cplusplus/cpp-tutorial.html
+
 1. const类型引用总结
+
 http://www.cnblogs.com/jiabei521/p/3335676.html
+
 https://www.zybuluo.com/quinn/note/77067
 
 2. typedef用法总结
+
 https://www.cnblogs.com/csyisong/archive/2009/01/09/1372363.html
+
 http://m.jb51.net/article/32587.htm
+
 http://jazka.blog.51cto.com/809003/330462
 
 3. c++中enum枚举类型的特性
+
 http://blog.csdn.net/neo_ustc/article/details/8828796
+
 http://blog.csdn.net/fxfeixue/article/details/6758850
 
 4. c++中的类类型
