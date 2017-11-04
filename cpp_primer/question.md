@@ -27,6 +27,15 @@ http://blog.csdn.net/fxfeixue/article/details/6758850
 6. extern关键字用法及总结
 7. string类型末尾是否有'\0'呢？
 8. string::size_type是什么类型？unsigned int还是int？
+_
+
+9. c++的vector的用法详解和c语言实现vector
+
+http://blog.csdn.net/hancunai0017/article/details/7032383
+
+http://blog.csdn.net/dengxu11/article/details/7311820
+
+
 
 
 字符串处理总结：http://blog.csdn.net/E_ROAD_BY_U/article/details/61416334
