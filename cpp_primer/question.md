@@ -35,6 +35,17 @@ http://blog.csdn.net/hancunai0017/article/details/7032383
 
 http://blog.csdn.net/dengxu11/article/details/7311820
 
+10. c++中sizeof(vector<>)大小问题
+
+http://www.cnblogs.com/hello--the-world/archive/2012/05/07/2487372.html
+
+11. 关于vector大小（size）和容量（capacity）的总结
+
+http://blog.csdn.net/c_base_jin/article/details/51099807
+
+12. vector容器与iterator迭代器
+
+http://www.cppblog.com/totti1006/archive/2009/09/01/94955.aspx
 
 
 
