@@ -35,6 +35,12 @@ http://blog.csdn.net/hancunai0017/article/details/7032383
 
 http://blog.csdn.net/dengxu11/article/details/7311820
 
+c++ vector第一弹：
+http://m.blog.csdn.net/u013171165/article/details/33323111
+
+c+= vector第二弹：
+http://m.blog.csdn.net/u013171165/article/details/35569587
+
 10. c++中sizeof(vector<>)大小问题
 
 http://www.cnblogs.com/hello--the-world/archive/2012/05/07/2487372.html
@@ -47,7 +53,17 @@ http://blog.csdn.net/c_base_jin/article/details/51099807
 
 http://www.cppblog.com/totti1006/archive/2009/09/01/94955.aspx
 
+13. c++中iterator迭代器详解
 
+http://www.cnblogs.com/hdk1993/p/4419779.html
+
+http://m.blog.csdn.net/u013171165/article/details/33340959
+
+14. c++中的bitset使用
+
+http://www.voidcn.com/article/p-cflemkip-cs.html
+
+http://www.voidcn.com/article/p-reoqmmky-bcb.html
 
 字符串处理总结：http://blog.csdn.net/E_ROAD_BY_U/article/details/61416334
 C++ String用法详解：https://www.byvoid.com/zhs/blog/cpp-string
