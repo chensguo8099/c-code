@@ -12,7 +12,7 @@
 using namespace std;
 
 int main(){
-    int const max_number(100);
+    int const max_number(100000000);//1亿需要7秒 10亿会段错误
     int const max_test((int)sqrt((double)max_number));
     bitset<max_number+1> numbers;
     numbers.set();//101个0
@@ -29,10 +29,11 @@ int main(){
 //任何非质数至少有一个因数不会大于它的平方根
     cout << "the num of primes less than" << max_number
         << "is" << numbers.count() << endl;
-
+/*
     for(int i(1); i!=max_number+1; ++i){
         if(numbers[i])
             cout << i << ",";
     }
+*/
     return 0;
 }
