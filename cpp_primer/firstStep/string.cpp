@@ -28,7 +28,6 @@ int main(){
     //string s5 = "hello";//这是一种不好的方法，先做初始化调用string默认构造函数，又做了赋值操作，在JAVA和C#中有这样的写法，但是在C++这样写效率低。
 
 
-
     cout << s1 << endl;//空字符串
     cout << s2 << endl;
     cout << s3 << endl;
