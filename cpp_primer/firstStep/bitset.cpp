@@ -19,7 +19,7 @@ int main(){
     cout << b << endl;
 
     bitset<32> c(0xffff);
-    cout << c << endl;//仅后面（右）16个1，前面（左）16位全1
+    cout << c << endl;//仅后面（右）16个1，前面（左）16位全0
 
     bitset<128> d(0xffff);
     cout << d << endl;//仅后面16个1，前面112个0
@@ -27,7 +27,7 @@ int main(){
     bitset<32> e(156);
     cout << e << endl;//156的32位二进制形式
 
-    string str("11111110000000011001101");
+    string str("111110101000000011001101");
     bitset<32> f(str, 5, 4);//从字符串中第5个开始（起始为0）向后4位作为f的副本
     cout << f << endl;
 
