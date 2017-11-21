@@ -65,8 +65,24 @@ http://www.voidcn.com/article/p-cflemkip-cs.html
 
 http://www.voidcn.com/article/p-reoqmmky-bcb.html
 
+15. 缓冲区溢出攻击
+
+http://www.cnblogs.com/fanzhidongyzby/p/3250405.html
+
+16. C/C++内存管理详解
+
+https://chenqx.github.io/2014/09/25/Cpp-Memory-Management/
+
+17. C++ new/delete操作符初步
+
+c.biancheng.net/cpp/biancheng/view/2978.html
+
+
+一次new和多次delete
+
 字符串处理总结：http://blog.csdn.net/E_ROAD_BY_U/article/details/61416334
 C++ String用法详解：https://www.byvoid.com/zhs/blog/cpp-string
+
 String 标准库：https://www.wikiwand.com/zh/String_(C%2B%2B%E6%A0%87%E5%87%86%E5%BA%93)
 
 
