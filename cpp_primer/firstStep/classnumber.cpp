@@ -16,16 +16,19 @@ class Sales_item{
         //类成员函数
         //函数名末尾const说明是常成员函数，函数中不能对类的数据成员进行修改
         //bool same_isbn(const Sales_item &rhs) const {};
-        bool same_isbn(const Sales_item &rhs) const {
+    bool same_isbn(const Sales_item &rhs) const {
             return this->isbn == rhs.isbn;
         }
-        double avg_price() const;//函数声明
+    double avg_price() const;//函数声明
 
     public:
-        std::string isbn;//书号
-        unsigned units_sold;//数量
-        double revenue;
+    std::string isbn;//书号
+    unsigned units_sold;//数量
+    double revenue;//金额
+    public:
+    Sales_item():units_sold(0),revenue(0.0),isbn("100"){}//构造函数 可以写在类内部，也可写在类的外部 isbn不初始化的话会默认初始化，所以也可不许要给isbn初始化
 };
+
 double Sales_item::avg_price() const {
     if(this->units_sold)
         return this->revenue / this->units_sold;
