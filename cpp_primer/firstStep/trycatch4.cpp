@@ -26,7 +26,7 @@ int main(){
             cout << i << ":new Dog 成功" << endl;
         }
     }
-    catch(bad_alloc err){
+    catch(bad_alloc err){//内存分配异常
         cout << "new Dog 失败：" << err.what() << endl;
     }
     return 0;
