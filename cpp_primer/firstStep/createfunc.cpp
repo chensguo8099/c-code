@@ -1,10 +1,3 @@
-/*************************************************************************
-	> File Name: createfunc.cpp
-	> Author: 
-	> Mail: 
-	> Created Time: Mon 11 Dec 2017 04:16:58 AM PST
- ************************************************************************/
-
 #include<iostream>
 using namespace std;
 class Dog;
