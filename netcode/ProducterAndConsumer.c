@@ -85,7 +85,6 @@ void *Producter(void *arg){
         //解除条件变量阻塞
         pthread_cond_signal(&condition);
         printf("条件信号发送完毕\n");
-        sleep(rand()%4);
     }
 }
 
@@ -116,14 +115,13 @@ void *Consumer(void *arg){
             else{
                 printf("%d\n", tmp->data);
                 tmp = NULL;
-                head = NULL;
+                //head = NULL;
             }
         }
         printf("\n");
         //解锁
         pthread_mutex_unlock(&mutex);
         printf("消费者已解锁\n");
-        sleep(rand()%4);
     }
 }
 
