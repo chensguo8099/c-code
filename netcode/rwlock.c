@@ -4,8 +4,7 @@
 	> Mail: 
 	> Created Time: 2019年02月15日 星期五 23时21分34秒
  ************************************************************************/
-
-#include<stdio.h>
+#include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
 int res;
@@ -49,10 +48,10 @@ int main(){
     pthread_t pthread_r[5];
 
     pthread_rwlock_init(&lock, NULL);
+    //也可以不向线程传threadid，直接在线程中调用pthread_self()函数打印当前线程id(unsigned long int)
     for(i = 0; i < 3; i++){
         pthread_create(&pthread_w[i], NULL, readfunc, &pthread_w[i]);
     }
-
     for(j = 0; j < 5; j++){
         pthread_create(&pthread_r[j], NULL, writefunc, &pthread_r[j]);
     }
