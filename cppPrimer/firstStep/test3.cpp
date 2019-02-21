@@ -13,6 +13,7 @@ public:
     MyArray();
     MyArray(int len);
     MyArray(const MyArray &another);
+    void operator=(const MyArray &another);
     ~MyArray();
 
     void setData(int index, int data);
@@ -49,6 +50,14 @@ MyArray::~MyArray(){
     delete []this->space;
     this->space = NULL;
 }
+void MyArray::operator=(const MyArray &another){
+    this->len = another.len;
+    this->space = new int[this->len];
+    for(int i = 0; i < this->len; i++){
+        this->space[i] = another.space[i];
+    }
+}
+
 void MyArray::setData(int index, int data){
     if(this->space == NULL){
         cout << "未分配内存" << endl;
@@ -70,7 +79,9 @@ int main(){
     MyArray arr1(10);
     arr1.setData(3, 5);
     MyArray arr2 = arr1;
-#if 0 //operator=等号重载时指针悬挂造成内存重复释放
+#if 0 //默认的operator=等号重载时指针悬挂造成内存重复释放
+    //所以我重写了一个=重载函数
+    //void operator=(const MyArray &another);
     MyArray arr2;
     arr2 = arr1;
 #endif

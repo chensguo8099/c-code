@@ -4,7 +4,7 @@
 	> Mail: 
 	> Created Time: 2019年01月30日 星期三 19时59分52秒
  ************************************************************************/
- #include <stdlib.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -12,7 +12,6 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <string.h>
-
 int main(){
     int fd = open("mmapTest.txt", O_RDWR | O_CREAT, 0644);
 
