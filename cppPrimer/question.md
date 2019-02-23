@@ -1,8 +1,9 @@
-C++基础学习总结
------------
+## C++基础学习总结（很敬畏这门语言.
 
 * 什么时候用`初始化列表`？
 * `new/delete`与`malloc/free`的区别？（两点
+*如果new和delete[]配对使用，new[]和delete配对使用，会发生什么事情？
+* 处理多态时delete对象时要采用虚析构才能应对多态。
 * static成员是命名空间，属于`类的全局变量`，存储在data区。
 * static成员函数只能返回static成员变量，不能用this指针，static成员函数`属于类而不属于类对象`。
 * this指针不是`const [类]*`类型，是`[类]* const`类型的常指针。
@@ -28,8 +29,6 @@ Test &operator++(Test &obj, int){
 }
 ```
 * `[]重载只能作为成员函数`，不像+重载可以作为成员函数返回类的引用`return *this;`也可以为全局返回void，但是考虑到a+b+c+..这样连续加，一般也把+重载为成员函数让其返回类的引用，这样就可以将+的结果作为左值然后连续+操作。《C++ Primer》page 611 “C++要求，赋值=、下标[]、调用()、成员访问箭头->操作符必须被定义为类成员操作符，任何把这些操作符定义为名字空间成员的定义都会被标记为编译时刻错误。
-
------
 * 将一个对象当成普通函数调用，称这种对象是`仿函数`或`伪函数`。
 ```c++
 void *operator new(size_t size);
@@ -38,6 +37,9 @@ void operator delete(void *p);
 void operator delete[](void *p);
 //重点关注new/delete重载时的返回值和参数
 ```
+
+
+-----
 
 * C++的`可重用性`是通过继承机制实现的。
 * 现有父子孙相互继承的三个类，`class Praent, class Child:public Parent`, `class Subchild:public Parent`，子类均可访问基类的`public`和`protected`，但`protected`仅能类内部访问，同时子类无法访问基类的`private`。
@@ -63,7 +65,7 @@ privte:
     ...
 };
 ```
-* 对于`菱形结构`的继承关系，最上层记为A类，中间记为B、C类，最下层记为D类，则因为D继承B、C两个类来自A的成员变量时会产生重复，所以将B、C继承A类时改为虚继承（D类无须加`virtual`），`防止A类中的成员变量由于D对B、C的多继承而产生多份。`
+* 对于`菱形结构`的继承关系，最上层记为A类，中间记为B、C类，最下层记为D类，则因为D继承B、C两个类来自A的成员变量时会产生重复，所以将B、C继承A类时改为虚继承（D类无须加`virtual`），`防止A类中的成员变量由于D对B、C的多继承而产生多份。`这种菱形继承如果不采用虚继承方式，当D类继承B、C重叠的成员变量，会产生二义性，系统不知道选择B类中的成员变量还是C类中的成员变量，需要我们手动指定获取B、C谁的成员变量。假设不采用虚继承方式，则D访问某继承的成员变量时实际调用类的顺序是：`A类构造->B类构造->A类构造->C类构造`，拷贝了两个空间的成员变量，浪费空间；如果采用虚继承方式，则顺序为：`A类构造->B类构造->C类构造`，也就是说A类构造只执行了一次，虚继承很好的解决了D类对从A继承过来的B、C类共有的成员变量不会重复继承过来的问题，节约了空间也避免了成员变量继承的二义性，采用虚继承后D类用到的成员变量不再是B、C中的一个，而是直接从A中继承成员变量。但**采用虚继承无法解决成员函数冲突问题，必须手动指定调用哪个类中的成员函数**，假设A、B、C类中均有个成员方法`print()`，当D要调用`print()`时，需要指定为类似这种：`D obj;` `obj.B::print()`或者`obj.C::print`，且D仅能指定调用B或者C类中的成员方法，也就是说尽管B、C虚继承A，仍然会存在对`print()`方法调用上的二义性，但如果D类中也有print方法，则优先调用D类内部的print方法。[[链接1]](https://blog.csdn.net/gc348342215/article/details/87890844)[[链接2]](https://github.com/chensguo8099/practice/blob/master/cppPrimer/firstStep/test10.cpp)
 ```c++
 class A{
 public:
@@ -79,6 +81,8 @@ class C:virtual public A{
 * [为什么new/delete和new[]/delete[]必须配对使用？如果用new和delete[]或者让new[]和delete配对使用结果如何？](https://blog.csdn.net/cwcmcw/article/details/53873600)
 
 * 虚继承与虚函数的`virtual`意义不同，是两种用法。（何种意义、何种用法？
+
+----
 * 多态发生的三个条件：1）要有继承。2）要有虚函数重写。3）父类指针或引用指向子类对象。如下：
 ```c++
 class Yuebuqun{
@@ -119,3 +123,114 @@ int main(){
     return 0;
 }
 ```
+* 动态联编和静态联编是对编译器来说的，多态对于编译器来说是一个动态联编，是迟绑定。
+* 多态方法在调用delete释放new时需要使用虚析构的方法来实现多态，代码如下：
+```c++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Father{
+public:
+    Father(){
+        cout << "Father()" << endl;
+        this->p = new char[64];
+        memset(this->p, 0, 64);
+        strcpy(this->p, "Father string...");
+    }
+    //实现多态
+    virtual void print(){
+        cout << "A:" << this->p << endl;
+    }
+    virtual ~Father(){
+        cout << "~Father()" << endl;
+        if(this->p != NULL){
+            delete []this->p;
+            this->p = NULL;
+        }
+    }
+private:
+    char *p;
+};
+
+class Son:public Father{
+public:
+    Son(){
+        cout << "Son()" << endl;
+        this->p = new char[64];
+        memset(this->p, 0, 64);
+        strcpy(this->p, "Son String...");
+    }
+    virtual void print(){
+        cout << "B:" << this->p << endl;
+    }
+    ~Son(){
+        cout << "~Son()" << endl;
+        if(this->p != NULL){
+            delete []this->p;
+            this->p = NULL;
+        }
+    }
+private:
+    char *p;
+};
+
+void func(Father *fatherp){
+    fatherp->print();
+    delete fatherp;
+    //此时必须将Father类的析构函数改为虚析构，否则：
+    //即使fatherp接收Son类仍调用父类析构，却不执行子类析构
+    //若父类析构改为虚构，当fatherp接受子类时会调用子类析构。
+}
+
+void test(){
+    //Son obj;
+    Son *bp = new Son;//传指针不是delete对象的话是不会打印该类析构的
+    func(bp);
+}
+
+int main(){
+    test();
+    return 0;
+}
+```
+* 重载、重定义、重写：
+1. 重载一定是同一个作用域下。
+2. 重定义是发生在两个不同的类中，一个是父类一个是子类。1）普通函数重定义：如果父类的普通成员函数被子类重写，说是重定义。2）虚函数重写：如果父类的虚函数被子类重写，就是虚函数重写，这个函数会发生多态。
+* 若A、B类均存在同名同参不同函数体的成员函数`print()`且B继承A，A为B的父类，当一个A类指针接收一个B类对象时，通过A->访问B类的成员函数`print()`，编译器确定`print()`是否为虚函数：1）`print()`不是虚函数，编译器可直接确定被调用的成员函数，（静态联编，根据指针为A类型来确定）。2）若`print()`为虚函数，编译器会根据B对象的`Vptr指针`所指向的函数虚表查找`print()`并调用。
+* 虚函数表指针Vptr调用重写函数是在程序运行时进行的，因此需要通过寻址操作才能确定真正应该调用的函数（静态联编），而普通成员函数是在编译时就确定了调用的函数，在效率上，虚函数效率要低很多。
+* 当方法函数中发生多态时，此时delete会调用父类的析构函数，如果要释放多态对象，需要将父类的析构函数变为virtual虚析构。[[链接]](https://github.com/chensguo8099/practice/blob/master/cppPrimer/firstStep/test12.cpp)
+* 对于虚函数需要避免的问题：当有继承和虚函数时避免用构造函数取调用虚函数，因为当子类构造时如果触发父类构造，**子类产生的Vptr是先指向父类的虚表的，进而当父类构造完毕后Vptr再指向子类虚表**，所以目的是说不要在构造函数中写业务，当项目代码过大时可能会产生繁琐的、难以察觉的问题，构造函数中调用业务出现的问题例子如下：
+```c++
+class A{
+public:
+    A(int a){
+        this->a = a;
+        print();//该print就会打印A中的虚函数virtual print!!!
+    }
+    virtual void print(){
+        cout << "A(int)..." << endl;
+    }
+private:
+    int a;
+};
+class B:public A{
+public:
+    B(int a, int b):A(a){
+        print();//该函数就会打印B中的虚函数，此时A构造完毕因此vptr转移指向B的虚表
+        this->b = b;
+    }
+    virtual void print(){
+        cout << "B(int, int)..." << endl;
+    }
+private:
+    int b;
+};
+int main(){
+    A *ap = new B(10, 20);//在触发B构造函数前先触发A构造函数
+    return 0;
+}
+```
+* 要避免父类指针和子类指针步长越界问题，比如A类`sizeof(A) = 4`，B类继承A，B类`sizeof(B) = 8`，此时定义`A *pp`和`B *cp`，`A *pp = new B;`时`pp++`中`++`操作是按照父类的`sizeof(A)`进行`++`的，指针不会像多态一样根据B类的尺寸进行`++`，反而会因此产生指针非法或错误访问。
+
+* 纯虚函数的抽象类下方的实例对象采用虚函数重写的方式将抽象类转换为多态。纯虚函数声明的抽象类不能被实例化。
