@@ -290,6 +290,7 @@ vector<int> v1; vector<int> v2(v1);
 v1 = v2;
 
 
+
 //-------
 deque<type> d;//不需要像vector一样对capacity放缩，内部自动
 d.push_front();//头插
@@ -297,6 +298,7 @@ d.pop_front();//头出
 d.push_back();
 d.pop_back();
 //其他操作同vector
+
 
 //-------
 stack<type> s;
@@ -306,12 +308,14 @@ s.push();
 s.empty();
 s.size();
 
+
 //-------
 queue<type> q;
 q.front();//队头元素
 q.back();//队尾元素
 q.pop();//从队头出
 q.push();//从队尾入
+
 
 //-------
 list<type> l;
@@ -321,7 +325,38 @@ l.pop_front();
 l.pop_front();
 l.remove();//删除匹配所有值
 l.reverse();//容器元素翻转
-l.sort();//与算法sort不同，算法sort支持可随机访问的容器，而list不支持随机访问，只能给迭代器++操作访问下一个。
+l.sort();//与算法sort不同，算法sort支持可随机访问的容器，而list不支持随机访问，只能给迭代器++操作访问下一个，如果用全局的算法提供的sort，效率会不稳定。
+find(l.begin(), l.end(), 30);//查找基础数据类型还是对象，如果是对象需要提供回调。
+//若要对类查找：
+class Person{
+public:
+    Person(int a, int b):a(a), b(b){}
+    bool operator==(const Person &a) const{
+        return a.a == 10;
+    }
+public:
+    int a;
+    int b;
+};
+
+int main(){
+    list<Person> l1;
+    Person a1(10, 20), a2(30, 5), a3(22, 6), a4(1, 100);
+    l1.push_back(a1);
+    l1.push_back(a2);
+    l1.push_back(a3);
+    l1.push_back(a4);
+    list<Person>::iterator it = find(l1.begin(), l1.end(), a1);
+    if(it == l1.end()){
+        cout << "not fount" << endl;
+    }else{
+        cout << (*it).a << " " << (*it).b  << endl;
+    }
+    return 0;
+}
+
+
+
 
 //-------
 set<type> s;
@@ -333,7 +368,7 @@ if(ret == s1.end()){
 }else{
     cout << "找到" << endl;
 }
-
+s.find(key);//返回迭代器位置 若it == s.end()则未找到
 s.lower_bound(key);//返回迭代器指向第一个大于等于key的值
 s.upper_bound(key);//返回迭代器指向第一个大于key的值
 s.equal_range(key);//返回容器中与key相等的上下限的两个迭代器，也就是返回lower_bound和upper_bound的值。
@@ -353,9 +388,8 @@ s.equal_range的用法：
     }else{
         cout << "found myret:" << *(myret.second) << endl;
     }
-```
+
 set默认由小到大排序，也可以按照由大到小排序，自己定义仿函数：
-```c++
 class compare{
 public:
     bool operator()(int a, int b){
@@ -367,8 +401,18 @@ public:
     //}
 }
 set<int, compare> s;
-```
+s.insert(10);
+s.insert(20);
+for(set<int>::iterator it = ...){
+    cout << (*it) << endl;
+}
 
+
+
+//map/multimap容器
+//map相对与set的区别，map具有键值，所有元素根据键值自动排序，pair的第一元素被称为键值，第二元素被称为实值，map也是以红黑树为底层实现机制。map的键值无法修改，底层二叉树键值如果改了就混乱了，想改键值必须删除该对象后重新添加。
+//map不允许相同键值key存在，multimap允许。
+```
 
 
 
