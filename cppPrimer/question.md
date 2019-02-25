@@ -2,12 +2,13 @@
 
 * 什么时候用`初始化列表`？
 * `new/delete`与`malloc/free`的区别？（两点
-*如果new和delete[]配对使用，new[]和delete配对使用，会发生什么事情？
+* 如果new和delete[]配对使用，new[]和delete配对使用，会发生什么事情？
 * 处理多态时delete对象时要采用虚析构才能应对多态。
 * static成员是命名空间，属于`类的全局变量`，存储在data区。
 * static成员函数只能返回static成员变量，不能用this指针，static成员函数`属于类而不属于类对象`。
 * this指针不是`const [类]*`类型，是`[类]* const`类型的常指针。
 * 类成员函数默认第一个参数为`隐式`的this常指针
+
 ```
 int get() const{//成员函数尾部出现const修饰this指针，表示this指针无法修改
     this->_a = 100;//error
@@ -266,3 +267,108 @@ void swap(T1 &a, T1&b){
 * 容器中可以嵌套容器，容器分为：序列式容器：容器元素的位置是由进入容器的时机和地点来决定的；关联式容器：容器已有规则，进入容器的元素位置不由时间和地点决定。
 * 迭代器：可理解为指针，对指针的操作基本都可以对迭代器操作，实际上迭代器是封装了一个指针的类。
 * 算法：通过**有限步骤**解决问题。
+* vector容器是单口容器，类似栈。特别要注意的是vector申请空间后capacity不会释放，所以需要我们手动收缩空间：`vector<type>(Obj).swap(Obj)`，实际含义就是创建匿名对象，然后给其赋Obj作初始化，然后匿名对象指针和原对象Obj指针进行交换，这时原对象指针则指向创建的匿名对象的空间，所以capacity就放缩了，并且释放了匿名对象。
+```c++
+//vector常用简单操作
+vector<type> v;
+v.size();
+v.capacity();
+v.reserve(100);//capacity 变为 100
+v.resize(100); //size 变为 100
+v.swap(v1);//v和v1交换空间及内容
+vector<int>(v).swap(v);//防缩capacity
+v.empty();//判断v是否为空
+v.comapre(v1);//根据ASCII进行比较
+v[i] = 100; v.at(i) = 100; //后者有异常检测
+v.push_back(100);//尾插
+v.pop_back(100);//尾出
+v.assign(v1.begin(), v1.end());
+v.assign(10, 5);//5555555555
+vector<int> v(*begin, *end);
+vector<int> v(10, 5);//5555555555
+vector<int> v1; vector<int> v2(v1);
+v1 = v2;
+
+
+//-------
+deque<type> d;//不需要像vector一样对capacity放缩，内部自动
+d.push_front();//头插
+d.pop_front();//头出
+d.push_back();
+d.pop_back();
+//其他操作同vector
+
+//-------
+stack<type> s;
+s.top();
+s.pop();
+s.push();
+s.empty();
+s.size();
+
+//-------
+queue<type> q;
+q.front();//队头元素
+q.back();//队尾元素
+q.pop();//从队头出
+q.push();//从队尾入
+
+//-------
+list<type> l;
+l.pop_back();
+l.push_back();
+l.pop_front();
+l.pop_front();
+l.remove();//删除匹配所有值
+l.reverse();//容器元素翻转
+l.sort();//与算法sort不同，算法sort支持可随机访问的容器，而list不支持随机访问，只能给迭代器++操作访问下一个。
+
+//-------
+set<type> s;
+s.find(key);//查找key是否存在，存在则返回该键元素的迭代起，不存在返回map.end();
+如：
+set<int>::iterator ret = s1.find(4);
+if(ret == s1.end()){
+    cout << "未找到" << endl;
+}else{
+    cout << "找到" << endl;
+}
+
+s.lower_bound(key);//返回迭代器指向第一个大于等于key的值
+s.upper_bound(key);//返回迭代器指向第一个大于key的值
+s.equal_range(key);//返回容器中与key相等的上下限的两个迭代器，也就是返回lower_bound和upper_bound的值。
+
+s.equal_range的用法：
+    pair<set<int>::iterator, set<int>::iterator> myret = s.equal.range(key);
+    //myret.first;//第一个迭代器代表的值
+    //myret.second;//第二个迭代器代表的值
+    if(myret.first == s1.end()){
+        cout << "not found" << endl;
+    }else{
+        cout << "found myret:" << *(myret.first) << endl;
+    }
+
+    if(myret.second == s1.end()){
+        cout << "not found" << endl;
+    }else{
+        cout << "found myret:" << *(myret.second) << endl;
+    }
+```
+set默认由小到大排序，也可以按照由大到小排序，自己定义仿函数：
+```c++
+class compare{
+public:
+    bool operator()(int a, int b){
+        return a > b;
+    }
+    //解决类中根据某个元素排序的问题
+    //bool operator()(Class &a, Class &b){
+    //    return a.成员 > b.成员
+    //}
+}
+set<int, compare> s;
+```
+
+
+
+
