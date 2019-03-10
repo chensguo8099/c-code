@@ -67,13 +67,13 @@ void *Producter(void *arg){
     while(1){
         //加锁
         pthread_mutex_lock(&mutex);
-        printf("生产者加锁\n");
-        printf("生产 thread id: %lu\n", pthread_self());
+        //printf("生产者加锁\n");
+        //printf("生产 thread id: %lu\n", pthread_self());
         createList();
-        printf("生产者已生产\n");
+        //printf("生产者已生产\n");
         List *tmp = head;
         //tmp便利打印链表内容
-        printf("链表为:");
+        //printf("链表为:");
         while(tmp->next != NULL){
             printf("%d ", tmp->data);
             tmp = tmp->next;
@@ -81,10 +81,10 @@ void *Producter(void *arg){
         printf("%d\n", tmp->data);
         //解锁
         pthread_mutex_unlock(&mutex);
-        printf("生产者解锁并发送条件信号解除阻塞\n");
+        //printf("生产者解锁并发送条件信号解除阻塞\n");
         //解除条件变量阻塞
         pthread_cond_signal(&condition);
-        printf("条件信号发送完毕\n");
+        //printf("条件信号发送完毕\n");
     }
 }
 
@@ -93,20 +93,20 @@ void *Consumer(void *arg){
     while(1){
         //加锁
         pthread_mutex_lock(&mutex);
-        printf("消费者加锁\n");
+        //printf("消费者加锁\n");
         if(head == NULL){
             //条件变量阻塞至链表用内容
-            printf("条件变量阻塞\n");
+            //printf("条件变量阻塞\n");
             pthread_cond_wait(&condition, &mutex);
-            printf("条件变量解除阻塞\n");
+            //printf("条件变量解除阻塞\n");
         }
         //删除链表节点（类似消费）
-        printf("消费 thread id: %lu\n", pthread_self());
+        //printf("消费 thread id: %lu\n", pthread_self());
         deleteList();
-        printf("消费者消费完毕\n");
+        //printf("消费者消费完毕\n");
         List *tmp = head;
         //考虑到若链表不为空 打印data 否则打印空行
-        printf("链表为:");
+        //printf("链表为:");
         while(tmp != NULL){
             if(tmp->next != NULL){
                 printf("%d ", tmp->data);
@@ -121,7 +121,7 @@ void *Consumer(void *arg){
         printf("\n");
         //解锁
         pthread_mutex_unlock(&mutex);
-        printf("消费者已解锁\n");
+        //printf("消费者已解锁\n");
     }
 }
 
