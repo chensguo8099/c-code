@@ -13,12 +13,13 @@
 #define SA struct sockaddr
 
 int main(int argc, char *argv[]){
+    /*
 	if(argc <= 2){
 		printf("usage:%sip_address port_number\n", basename(argv[0]));
 		//basename()当向basename传递一个路径名，它会删除任何前缀，直到最后一个斜线'/'字符，然后返回结果。
 		return 1;
 	}
-
+*/
 	const char* ip = argv[1];
 	int port = atoi(argv[2]);//atoi将字符串转换为整形
 
@@ -27,7 +28,7 @@ int main(int argc, char *argv[]){
 	bzero(&address, sizeof(address));
 
 	address.sin_family = AF_INET;
-	inet_pton(AF_INET, ip, &address.sin_addr);
+	inet_pton(AF_INET, ip, &address.sin_addr.s_addr);
 	address.sin_port = htons(port);
 
 	int listenfd = socket(PF_INET, SOCK_STREAM, 0);
