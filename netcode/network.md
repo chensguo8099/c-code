@@ -24,3 +24,61 @@
 
 * tcp是**面向连接**的**安全**的**流式**传输协议。连接的时候进行三次握手，数据发送的时候会进行数据确认，数据丢失之后会进行数据重传。
 * udp面向无连接的不安全的报文传输，连接时候不会握手，数据发送出去之后就不管了。如果数据包丢失会全丢，不存在丢失一半的情况。
+
+
+### socket
+#### 服务器
+1. 创建套接字
+```c
+int lfd = socket
+```
+2. 绑定本地IP和PORT
+```c
+struct sockaddr_in serv;
+serv.port = htons(port);
+serv.ip = htonl(INADDR_ANY);
+bind(lfd, &serv, sizeof(serv));
+```
+3. 监听
+```c
+listen(lfd, 128);
+```
+4. 等待并接受连接请求
+```c
+struct sockaddr_in client;
+int len = sizeof(client);
+int cfd = accept(lfd, &client, &len);
+//cfd用于通信
+```
+5. 通信
+```c
+接收数据：read/recv
+发送数据：write/send
+```
+6. 关闭
+```c
+close(lfd);
+close(cfd);
+```
+#### 客户端
+1. 创建套接字
+```c
+int fd = socket;
+```
+2. 连接服务器
+```c
+struct sockaddr_in server;
+server.port
+server.ip = (int) ?? //如何把点分十进制ip转成int
+server.family
+connect(fd, &server, sizeof(server));
+```
+3. 通信
+```c
+接收数据：read/recv
+发送数据：write/send
+```
+4. 关闭
+```c
+close(fd);
+```
