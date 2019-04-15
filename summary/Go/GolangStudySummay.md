@@ -457,3 +457,65 @@ func sliceModifyString() {
 	fmt.Println(str) //晨eblo world!
 }
 ```
+
+---------
+* golang中的`map`的`key`可以是很多种类型，比如 bool，数字，string，指针，channel，还可以是只包含前面几个类型的接口，结构体，数组，通常`key`为`int`、`string`，注意：slice，map 还有 function 不可以作`key`，因为这几个没法用 == 来判断。
+* map 在使用前一定要 make。map 的 key 是不能重复，如果重复了，则以最后这个 key-value 为准。map 的 value 是可以相同的。map 的 key-value 是无序。
+* map创建的三种方式如下：
+```go
+func mapCreate() {
+	//第一种方式
+	var redis map[string]int
+	redis = make(map[string]int, 10)
+	redis["郭晨"] = 22
+	redis["夏顺兴"] = 23
+	redis["王潇"] = 22
+	redis["郭晨"] = 18 //覆盖 暗示自己可以回到18岁
+	fmt.Println(redis)
+
+	//第二种方式
+	//make(map[string]int, number) number省略则默认分配1个map空间
+	redis2 := make(map[string]int)
+	redis2["肥鱼"] = 22
+	fmt.Println(redis2)
+
+	//第三种方式
+	// var redis3 map[string]int = map[string]int{...}
+	redis3 := map[string]int{"太子": 21, "蕊花": 10}
+	fmt.Println(redis3)
+}
+// 运行结果：
+// map[夏顺兴:23 王潇:22 郭晨:18]
+// map[肥鱼:22]
+// map[太子:21 蕊花:10]
+
+
+
+//实现一个map记录学生name sex，考虑到name可能会重名 所以用学号标识唯一key 所以value可用map存放
+func StudentInfoMap() {
+	//以下两种方式结果不同 我的思路是第一种 但是第二种似乎更合适！
+
+	// studentId := make(map[int]map[string]string, 2)
+	// studentId[0] = make(map[string]string)
+	// studentId[0]["夏顺兴"] = "男"
+	// studentId[1] = make(map[string]string)
+	// studentId[1]["郭晨"] = "男"
+	// fmt.Println(studentId)
+	// result:
+	// map[0:map[夏顺兴:男] 1:map[郭晨:男]]
+
+	studentId := make(map[int]map[string]string)
+	studentId[0] = make(map[string]string, 3)
+	studentId[0]["name"] = "tom"
+	studentId[0]["sex"] = "male"
+	studentId[0]["address"] = "Xi'an"
+
+	studentId[1] = make(map[string]string, 3)
+	studentId[1]["name"] = "jerry"
+	studentId[1]["sex"] = "male"
+	studentId[1]["address"] = "XianYang"
+	fmt.Println(studentId)
+	// result:
+	// map[0:map[address:Xi'an name:tom sex:male] 1:map[address:XianYang name:jerry sex:male]]
+}
+```
