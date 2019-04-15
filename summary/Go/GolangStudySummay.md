@@ -233,3 +233,209 @@ func main() {
 	*/
 }
 ```
+
+```go
+//请编写一个程序,具体要求如下
+//1) 编写一个函数 makeSuffix(suffix string) 可以接收一个文件后缀名（比如.jpg），并返回一个闭包
+//2) 调用闭包，可以传入一个文件名，如果该文件名没有指定的后缀（比如.jpg），则返回 文件名.jpg，如果已经有.jpg 后缀，则返回原文件名。
+//3) 要求使用闭包的方式完成。
+//4) strings.HasSuffix(name string, suffix string)，该函数可以判断某个字符串是否有指定的后缀。
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+//实现一个闭包
+func makeSuffix(suffix string) func(string) string {
+	return func(name string) string {
+		//name无suffix后缀
+		if !strings.HasSuffix(name, suffix) {
+			return name + suffix
+		} else {
+			return name
+		}
+	}
+}
+
+func main() {
+	f := makeSuffix(".jpg")
+	fmt.Println(f("heleee"))
+}
+//上面代码的总结和说明：
+//1) 返回的匿名函数和 makeSuffix(suffix string) 的suffix变量组合成一个闭包，因为返回的函数引用到suffix这个变量。
+//2) 我们体会一下闭包的好处，如果使用传统的方法，也可以轻松实现这个功能，但是传统方法需要每次都传入后缀名，比如.jpg，而闭包因为可以保留上次引用的某个值，如.jpg，所以我们传入一次就可以反复使用。
+```
+
+* 在函数中，程序员经常需要创建资源（比如：数据库连接、文件句柄、锁等），为了在函数执行完毕后，及时的释放资源，Go的设计者提供`defer(延时机制)`。
+```go
+//1) 当 go 执行到一个 defer 时，不会立即执行 defer 后的语句，而是将 defer 后的语句压入到一个栈中[暂时称该栈为 defer 栈]，然后继续执行函数下一个语句。
+//2) 当函数执行完毕后，在从 defer 栈中，依次从栈顶取出语句执行（注：遵守栈先入后出的机制）。
+//3) 在 defer 将语句放入到栈时，也会将相关的值拷贝同时入栈。请看一段代码:
+func deferTest(n1 int, n2 int) int {
+	defer fmt.Println("first defer", n1, n2)  //third
+	defer fmt.Println("second defer", n1, n2) //second
+	n1++ //此n1非defer栈中n1
+	n2++ //此n2非defer栈中n2
+	res := n1 + n2
+	fmt.Println("res : ", res) //frist
+	return res
+}
+
+func main() {
+	res := deferTest(10, 20) //forth
+	fmt.Println("main", res)
+}
+//1) 在 golang 编程中的通常做法是，创建资源后，比如（打开了文件，获取了数据库的链接，或者是锁资源），可以执行 defer file.Close() defer connect.Close()
+//2) 在 defer 后，可以继续使用创建资源。
+//3) 当函数完毕后，系统会依次从 defer 栈中，取出语句，关闭资源。
+//4) 这种机制，非常简洁，程序员不用再为在什么时机关闭资源而烦心。
+```
+* 1）值传递：基本数据类型`int`系列，`float`系列，`bool`，`string`、数组和结构体`struct`。2）引用传递：指针、`slice`切片、`map`、管道`chan`、`interface`等
+```
+//字符串相关函数
+说明：字符串在我们程序开发中，使用的是非常多的，常用的函数需要掌握：
+1) 统计字符串的长度，按字节： len(str)
+2) 字符串遍历，同时处理有中文的问题： r := []rune(str)
+3) 字符串转整数： n, err := strconv.Atoi("12")
+4) 整数转字符串： str = strconv.Itoa(12345)
+5) 字符串转[]byte： var bytes = []byte("hello go")
+6) []byte转字符串： str = string([]byte{97, 98, 99})
+7) 10进制转2，8，16进制： str = strconv.FormatInt(123, 2) // 2-> 8 , 16
+8) 查找子串是否在指定的字符串中： strings.Contains("seafood", "foo") //true
+9) 统计一个字符串有几个指定的子串： strings.Count("ceheese", "e") //4
+10) 不区分大小写的字符串比较（==是区分字母大小写的）： strings.EqualFold("abc", "Abc") //返回true
+11) 返回子串在字符串第一次出现的index值，如果没有返回-1： strings.Index("NLT_abc", "abc") //4
+12) 返回子串在字符串最后一次出现的index。如没有返回-1： strings.LastIndex("go golang", "go")
+13) 将指定的子串拷贝，对拷贝的串替换并返回： strings.Replace("go go hello", "go", "go语言", n) //n可以指定你希望替换几个,如果 n=-1 表示全部替换
+14) 按照指定的某个字符，为分割标识，将一个字符串拆分成字符串数组： strings.Split("hello,wrold,ok", ",") //返回一个数组，存放3个元素 "hello" "world" "ok"
+15) 将字符串的字母进行大小写的转换： strings.ToLower("Go") //strings.ToUpper("Go") // GO
+16) 将字符串左右两边的空格去掉： strings.TrimSpace(" tn a lone gopher ntrn   ") //结果"tn a lone gopher ntrn"
+17) 将字符串左右两边指定的字符去掉： strings.Trim("! hello! !", " !") // ["hello"] //将左右两边 ! 和 " "去掉
+18) 将字符串左边指定的字符去掉： strings.TrimLeft("! hello! !", " !") // ["hello! !"] //将左边 ! 和 " "去掉
+19) 将字符串右边指定的字符去掉 : strings.TrimRight("! hello! !", " !") // ["! hello"] //将右边 ! 和 " "去掉
+20) 判断字符串是否以指定的字符串开头: strings.HasPrefix("ftp://192.168.10.1", "ftp") // true
+21) 判断字符串是否以指定的字符串结束: strings.HasSuffix("NLT_abc.jpg", "abc") //false
+
+
+//时间日期相关函数
+1) 时间和日期相关函数，需要导入 time 包
+2) time.Now()返回值类型为 time.Time 类型，用于表示时间
+3) 如何获取到其它的日期信息：now := time.Now() now.Year() now.Month() now.Day() now.Hour() now.Minute() now.Second()
+4) 格式化日期时间
+方式一： 就是使用 Printf 或者 Sprintf
+方式二： 使用 time.Format() 方法完成
+5) 时间的常量：
+const (
+	Nanosecond	         = 1 //纳秒
+	Microsecond	         = 1000 * Nanosecond	//微秒
+	Millisecond          = 1000 * Microsecond //毫秒
+	Second               = 1000 * Millisecond //秒
+	Minute               = 60 * Second //分钟
+	Hour                 = 60 * Minute //小时
+)
+time.Sleep(time.Second(1))
+
+rand.Seed(time.Now().UnixNano())
+randNum := rand.Intn(100) //随机一个[0, 100)的数
+```
+* Go异常处理通过`defer + recover`实现，并且必须写在可能出现异常部分的前方，如下：
+```go
+//recover必须写在捕捉到异常之前
+func catchErr() {
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Printf("err : %v\n", err)
+		}
+	}()
+	num1 := 10
+	num2 := 0
+	num := num1 / num2
+	fmt.Printf("num : %d\n", num)
+}
+```
+* Go 程序中，也支持自定义错误，使用 errors.New 和 panic 内置函数。1) errors.New("错误说明")，会返回一个 error 类型的值，表示一个错误2） panic 内置函数，接收一个 interface{} 类型的值（也就是任何值了）作为参数。可以接收 error 类
+型的变量，输出错误信息，并退出程序。即自定义错误处理：err := errors.New("balabala..") 和 panic(err)，实例如下：
+```go
+func errTest2(name string) (err error) {
+	if name == "config.init" {
+		return nil
+	} else {
+		return errors.New("配置文件不匹配")
+	}
+}
+
+func catchErr2() {
+	err := errTest2("config.ini")
+	if err != nil {
+		panic(err)
+	}
+}
+```
+* 数组定义三种方式即`for-range`遍历方式：
+```go
+func arrDefine() {
+	// var arr [3]string = [3]string{"aa", "bb", "cc"}
+	// var arr = [3]string{"aa", "bb", "cc"}
+	arr := [3]string{"aa", "bb", "cc"} //以上三种定义均可 第三种最简洁
+
+	for index, value := range arr {
+		fmt.Printf("index : %d\tval : %s\n", index, value)
+	}
+}
+```
+* 数组是多个相同类型数据的组合，一个数组一旦声明/定义了，其长度是固定的，不能动态变化。
+* `var arr []int`这时 arr 就是一个 slice 切片，所以定义数组必须写长度，如果不像定义则写成类似这样：`arr := []string{"abc", "def", "wadwf"}`。
+* 数组中的元素可以是任何数据类型，包括值类型和引用类型。
+* 数组创建后如果没有赋值，有默认值（零值）数值类型数组：默认值为0，字符串数组：默认值为""，bool数组：默认值为false。
+* 切片是数组的一个引用，因此切片是引用类型，在进行传递时，遵守引用传递的机制。切片的使用和数组类似，遍历切片、访问切片的元素和求切片长度len(slice)都一样。切片的长度是可以变化的，因此切片是一个可以动态变化数组。
+* slice使用的三种方式：
+```go
+func sliceCreate() {
+	//方式1. 定义一个切片 然后引用一个数组
+	arr := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
+	slice := arr[2:4]
+	fmt.Printf("slice: %d\tslice len: %d\tslice cap: %d\n", slice, len(slice), cap(slice))
+	//使得slice置空 len = 0
+	slice = arr[:0]
+	fmt.Printf("slice: %d\tslice len: %d\tslice cap: %d\n", slice, len(slice), cap(slice))
+	//从arr[4]到arr[len(arr) - 1]
+	slice = arr[4:] //等价于取arr  ->  [0, len(arr))
+	fmt.Printf("slice: %d\tslice len: %d\tslice cap: %d\n", slice, len(slice), cap(slice))
+	//取arr所有
+	slice = arr[:] //等价于取arr  ->  [0, len(arr))
+	fmt.Printf("slice: %d\tslice len: %d\tslice cap: %d\n", slice, len(slice), cap(slice))
+
+	//方式2. 通过make创建切片 基本语法：var 切片名 []type = make([]type, len, [cap])
+	// 1) 通过 make 方式创建切片可以指定切片的大小和容量
+	// 2) 如果没有给切片的各个元素赋值，那么就会使用默认值[int, float=>0， string=>””， bool=>false]
+	// 3) 相比于方式1 通过 make 方式创建的切片对应的数组是由 make 底层维护，对外不可见，即只能通过 slice 去访问各个元素。
+	var slice2 []int = make([]int, 4, 10)
+	for index, _ := range slice2 {
+		fmt.Printf("slice2[%d]: %d\t", index, slice2[index])
+	}
+	fmt.Println()
+
+	//方式3. 直接将数组附值给切片
+	var slice3 []string = []string{"tom", "jerry", "spack"}
+	for _, value := range slice3 {
+		fmt.Printf("%v\t", value)
+	}
+	fmt.Println()
+}
+```
+* 切片初始化时 var slice = arr[startIndex:endIndex]说明:从 arr 数组下标为 startIndex，取到下标为 endIndex 的元素（不含 arr[endIndex]）。切片初始化时，仍然不能越界。范围在 [0-len(arr)] 之间，但是可以动态增长。var slice = arr[0:end] 可以简写：var slice = arr[:end]，var slice = arr[start:len(arr)] 可以简写：var slice = arr[start:]var slice = arr[0:len(arr)]，可以简写：var slice = arr[:]3) cap 是一个内置函数，用于统计切片的容量，即最大可以存放多少个元素。切片定义完后，还不能使用，因为本身是一个空的，需要让其引用到一个数组，或者 make 一个空间供切片来使用。切片可以继续切片。
+* 切片 append 操作的底层原理分析：切片 append 操作的本质就是对数组扩容，go 底层会创建一下新的数组 newArr，将 slice 原来包含的元素拷贝到新的数组 newArr，slice 重新引用到 newArr，注意 newArr 是在底层来维护的，程序员不可见。
+* copy函数可用于对切片的拷贝：
+```go
+func sliceCopy() {
+	var sliceCopySrc []string = []string{"09", "pdd", "pis"}
+	var sliceCopyDest []string = make([]string, 10)
+
+	copy(sliceCopyDest, sliceCopySrc)
+	fmt.Println(sliceCopyDest)
+}
+```
+* string 底层是一个 byte 数组，因此 string 也可以进行切片处理。
