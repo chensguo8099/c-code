@@ -7,7 +7,6 @@
 
 -----------------
 
-
 * go函数可以直接支持返回多个返回值，在C/C++中需要通过数组返回。
 
 ```go
@@ -340,6 +339,8 @@ time.Sleep(time.Second(1))
 rand.Seed(time.Now().UnixNano())
 randNum := rand.Intn(100) //随机一个[0, 100)的数
 ```
+
+___________
 * Go异常处理通过`defer + recover`实现，并且必须写在可能出现异常部分的前方，如下：
 ```go
 //recover必须写在捕捉到异常之前
@@ -374,6 +375,8 @@ func catchErr2() {
 	}
 }
 ```
+
+__________
 * 数组定义三种方式即`for-range`遍历方式：
 ```go
 func arrDefine() {
@@ -438,4 +441,19 @@ func sliceCopy() {
 	fmt.Println(sliceCopyDest)
 }
 ```
-* string 底层是一个 byte 数组，因此 string 也可以进行切片处理。
+* string 底层是一个`byte`数组，因此`string`也可以进行切片处理。如果要修改`string`中的内容，修改字母可通过将str转为`[]byte`然后修改，修改完毕再转回来；如果修改汉字（汉字占三个字符）则需将字符串转为`[]rune`类型切片，修改完毕后再转为`string`。
+```go
+func sliceModifyString() {
+	//将string改为[]byte切片 然后修改后 再转为string 而不能直接对string修改
+	var str string = "hello world!"
+	arr := []byte(str)
+	arr[2] = 'b'
+	str = string(arr)
+	fmt.Printf("%s\n", str) //heblo world!
+
+	arr2 := []rune(str)
+	arr2[0] = '晨'
+	str = string(arr2)
+	fmt.Println(str) //晨eblo world!
+}
+```
