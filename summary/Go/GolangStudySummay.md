@@ -517,5 +517,146 @@ func StudentInfoMap() {
 	fmt.Println(studentId)
 	// result:
 	// map[0:map[address:Xi'an name:tom sex:male] 1:map[address:XianYang name:jerry sex:male]]
+
+	//delete(mapname, key)  删除key-value
+	// delete(studentId, 0)
+	// fmt.Println(studentId)
+	// result:
+	// map[1:map[address:XianYang name:jerry sex:male]]
+
+	//也可用for-range遍历 但是一般都使用for-range
+	//如果map的key不是数字的时候，就无法用for遍历 只能用for-range遍历了
+	println("......")
+	for i := 0; i < len(studentId); i++ {
+		fmt.Printf("%v\n", i)
+		for j := 0; j < len(studentId[i]); j++ {
+			fmt.Printf("\tname:%v sex:%v address:%v\n", studentId[i]["name"], studentId[i]["sex"], studentId[i]["address"])
+		}
+	}
+	//result:
+	// 0
+	//     name:tom sex:male address:Xi'an
+	//     name:tom sex:male address:Xi'an
+	//     name:tom sex:male address:Xi'an
+	// 1
+	//     name:jerry sex:male address:XianYang
+	//     name:jerry sex:male address:XianYang
+	//     name:jerry sex:male address:XianYang
+}
+```
+* 如果要删除map中所有的key-value，方法一是需要遍历map，遍历过程中对每个key-value进行删除；方法二是直接给mapname重新make(map)一个新的map空间，让原来的空间被gc回收。
+* 当定义map切片后分配了固定的内存，如果数据不断加入，可能没有预分配内存，此时要用到map切片的append函数追加来动态扩容：
+```go
+//map切片
+func addMap() {
+	//定义mapq切片时 需要为其分配内存大小 在预分配大小不足时 就需要子啊map中使用append追加来实现动态扩容
+	var mapInfo []map[string]string = make([]map[string]string, 1)
+	mapInfo[0] = make(map[string]string, 2)
+	mapInfo[0]["name"] = "牛魔王"
+	mapInfo[0]["age"] = "22"
+	fmt.Printf("%v\n", mapInfo)
+
+	newInfo := map[string]string{
+		"name": "孙悟空",
+		"age":  "200",
+	}
+	mapInfo = append(mapInfo, newInfo)
+	fmt.Printf("%v\n", mapInfo)
+
+	for key, value := range mapInfo {
+		fmt.Printf("index:%d\n", key)
+		for key2, value2 := range value {
+			fmt.Printf("\t%v:%v\n", key2, value2)
+		}
+	}
+	// result:
+	// [map[age:22 name:牛魔王]]
+	// [map[age:22 name:牛魔王] map[age:200 name:孙悟空]]
+	// index:0
+	// 		name:牛魔王
+	// 		age:22
+	// index:1
+	// 		name:孙悟空
+	// 		age:200
+}
+```
+* 如何有序排列map？先将`map`的`key`放在切片中，然后对切片排序，再遍历切片，按照`key`来输出`value`值。代码如下：
+```go
+func mapSort() {
+	keyValueTable := make(map[int]int, 4)
+	keyValueTable[10] = 100
+	keyValueTable[1] = 13
+	keyValueTable[4] = 56
+	keyValueTable[8] = 90
+
+	//无序
+	for key, _ := range keyValueTable {
+		fmt.Println(key)
+	}
+
+	//有序
+	var keys []int
+	for key, _ := range keyValueTable {
+		keys = append(keys, key)
+	}
+	// func Ints(a []int)
+	// Ints函数将a排序为递增顺序。
+	sort.Ints(keys)
+	for _, value := range keys {
+		fmt.Printf("map[%d] : %d\n", value, keyValueTable[value])
+	}
+}
+```
+* `map`是引用类型，遵守引用类型传递的机制，在一个函数接收`map`，修改后会直接修改原来的`map`，`map`的容量达到后，再向`map`增加元素，会自动扩容，并不会发生`panic`，也就是说`map`能动态的增长键值对（key-value）。`map`的`value`也经常使用`struct`类型，更适合管理复杂的数据，比`value`设置为一个新的`map`更好，比`value`为`Student`结构体。
+
+-----------
+* Golang 也支持面向对象编程（OOP），但是和传统的面向对象编程有区别，并不是纯粹的面向对象语言。所以我们说 Golang 支持面向对象编程特性是比较准确的。Golang 没有类（class），Go 语言的结构体（struct）和其它编程语言的类（class）有同等的地位，你可以理解 Golang 是基于 struct 来实现 OOP 特性的。Golang 面向对象编程非常简洁，去掉了传统 OOP 语言的继承、方法重载、构造函数和析构函数、隐藏的 this 指针等等。Golang 仍然有面向对象编程的`继承`，`封装`和`多态`的特性，只是实现的方式和其它 OOP 语言不一样，比如继承：Golang 没有`extends`关键字，继承是通过*匿名字段*来实现。Golang 面向对象（OOP）很优雅，OOP 本身就是语言类型系统（type system）的一部分，通过接口（interface）关联，耦合性低，也非常灵活。也就是说在 Golang 中面向接口编程是非常重要的特性。
+* 结构体名及结构体字段名的首字母大写，则可以在其他文件中使用，否则无法使用该结构体。在创建一个结构体变量后，如果没有给字段赋值，都对应一个零值（默认值）。
+```go
+type Animal struct {
+	id int
+	name string
+}
+func createObj(){
+	//创建方式1
+	var cat Animal
+	cat.id = 10
+	cat.name = "tom"
+	//创建方式2
+	cat := Animal{10, "tom"}
+
+	//注：如果结构体中第二个变量是类似map这种需要make分配的，就无法用方式2
+}
+```
+
+* 字段是结构体的一个组成部分，一般是基本数据类型、数组，也可是引用类型。所以如果在`main`中定义一个结构体，包含两个字段，一个是值，一个是引用，那么传参给某个函数后，函数如果对结构体两个字段修改，修改后的`main`中值字段不变，但是引用字段会改变，代码如下：
+```go
+type Animal struct {
+	id          int
+	name_to_age map[string]string
+}
+
+func structCopyTest(recvObj Animal) {
+	for _, val := range recvObj.name_to_age {
+		fmt.Println(val) //tom cat
+	}
+	fmt.Println(recvObj) //{10 map[name:tom cat]}
+
+	recvObj.id = 5
+	recvObj.name_to_age["name"] = "xsx cat"
+
+	for _, val := range recvObj.name_to_age {
+		fmt.Println(val) //xsx cat
+	}
+	fmt.Println(recvObj) //{5 map[name:xsx cat]}
+}
+
+func main() {
+	var cat Animal
+	cat.id = 10
+	cat.name_to_age = make(map[string]string)
+	cat.name_to_age["name"] = "tom cat"
+	structCopyTest(cat)
+	fmt.Println(cat) //{10 map[name:xsx cat]}
 }
 ```
