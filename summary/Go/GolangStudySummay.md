@@ -611,7 +611,7 @@ func mapSort() {
 
 -----------
 * Golang 也支持面向对象编程（OOP），但是和传统的面向对象编程有区别，并不是纯粹的面向对象语言。所以我们说 Golang 支持面向对象编程特性是比较准确的。Golang 没有类（class），Go 语言的结构体（struct）和其它编程语言的类（class）有同等的地位，你可以理解 Golang 是基于 struct 来实现 OOP 特性的。Golang 面向对象编程非常简洁，去掉了传统 OOP 语言的继承、方法重载、构造函数和析构函数、隐藏的 this 指针等等。Golang 仍然有面向对象编程的`继承`，`封装`和`多态`的特性，只是实现的方式和其它 OOP 语言不一样，比如继承：Golang 没有`extends`关键字，继承是通过*匿名字段*来实现。Golang 面向对象（OOP）很优雅，OOP 本身就是语言类型系统（type system）的一部分，通过接口（interface）关联，耦合性低，也非常灵活。也就是说在 Golang 中面向接口编程是非常重要的特性。
-* 结构体名及结构体字段名的首字母大写，则可以在其他文件中使用，否则无法使用该结构体。在创建一个结构体变量后，如果没有给字段赋值，都对应一个零值（默认值）。
+* 结构体名及结构体字段名的首字母大写，则可以在其他文件中使用，否则无法使用该结构体。在创建一个结构体变量后，如果没有给字段赋值，都对应一个零值（默认值）。结构体指针访问字段的标准方式应该是：`(*结构体指针).字段名`，比如`(*person).Name = "tom"`，但 go 做了一个简化,也支持`结构体指针.字段名`，比如`person.Name = "tom"`。更加符合程序员使用的习惯，go 编译器底层对`person.Name`做了转化`(*person).Name`。
 ```go
 type Animal struct {
 	id int
@@ -622,8 +622,18 @@ func createObj(){
 	var cat Animal
 	cat.id = 10
 	cat.name = "tom"
+
 	//创建方式2
 	cat := Animal{10, "tom"}
+
+	//创建方式3
+	var cat *Animal = new(Animal)
+	(*cat).id = 15
+	//Go 为了简化上述写法  可等同于写cat.id = 15 这点放在C语言中语法就是错误的，C中应为cat->id = 15 切记！
+
+	//创建方式4
+	var cat *Animal = &Animal{}
+	(*cat).id = 20
 
 	//注：如果结构体中第二个变量是类似map这种需要make分配的，就无法用方式2
 }
@@ -660,3 +670,89 @@ func main() {
 	fmt.Println(cat) //{10 map[name:xsx cat]}
 }
 ```
+* struct 的每个字段上，可以写上一个*tag*，该*tag*可以通过反射机制获取，常见的使用场景就是序列化和反序列化。
+* 结构体是用户单独定义的类型，和其它类型进行转换时需要有完全相同的字段（名字、个数和类型），实例代码如下：
+```go
+type A struct {
+	Num int
+}
+
+type B struct {
+	Num int
+}
+
+func main() {
+	var a A = A{13}
+	var b B
+	b = B(a)
+	fmt.Println(a, b)
+	// result:
+	// {13} {13}
+}
+```
+* `func Marshal(v interface{}) ([]byte, error)`可返回v的json编码，实例代码如下：
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type Monster struct {
+	Name  string `json:"name"`
+	Age   int    `json:"age"`
+	Skill string `json:"skill"`
+}
+
+func main() {
+	var monster Monster = Monster{"牛魔王", 200, "芭蕉扇~"}
+
+	//monster结构中结构体成员字段首字母必须大写，因为要在json包中使用，那如果服务器想要获取小写字段名 该如何转换？可以在结构体中加入json后缀
+	jsonStr, err := json.Marshal(monster)
+	if err != nil {
+		fmt.Println("错误:", err)
+	}
+	fmt.Println("json序列为：", jsonStr)
+	//将json序列转为a原字符串
+	fmt.Println(string(jsonStr)) //结构体后加入`json:".."`后 输出结果为：{"name":"牛魔王","age":200,"skill":"芭蕉扇~"}
+}
+```
+
+------------
+* 某些情况下，我们要需要声明（定义）*方法*。比如 Person 结构体：除了有一些字段外（年龄、姓名..），Person 结构体还有一些行为比如：可以说话、跑步..，通过学习，还可以做算术题。这时就要用*方法*才能完成。Golang 中的*方法*是作用在指定的数据类型上的（即：和指定的数据类型绑定），因此自定义类型，都可以有*方法*，而不仅仅是 struct。*方法*的声明和调用如下：
+```go
+type A struct {
+	Num int
+}
+//表示test() 是 a 的方法
+func (a A) test() {
+	fmt.Println(a.Num)
+}
+// 1) func (a A) test() {} 表示 A 结构体有一方法，方法名为 test
+// 2) (a A) 体现 test 方法是和 A 类型绑定的
+```
+* 方法与函数不同的一点是调用方法时，调用该方法的结构体（不仅限于结构体，可以是任何其他*自定义类型*）的所有值字段数据也会拷贝一份至方法中，但是像map、slice这种还是引用（实测），但是如果将下方方法中`test testStruct`改为`test *testStruct`，则调用对应方法后`test`的`id`会改为*12*，实例代码如下：
+```go
+//根据以上猜测如下代码 对map是拷贝还是引用传递？
+type testStruct struct {
+	id          int
+	name_to_age map[string]string
+}
+
+func (test testStruct) testFunc() {
+	test.name_to_age["name"] = "夏顺兴"
+	test.id = 12
+	fmt.Println(test) //{12 map[age:22 name:夏顺兴]}
+	fmt.Println("ret func")
+}
+func main() {
+	var test testStruct
+	test.id = 666
+	test.name_to_age = map[string]string{"name": "郭晨", "age": "22"}
+	test.testFunc()
+	fmt.Println(test) //{666 map[age:22 name:夏顺兴]}
+	// 若方法改为 func (test *testStrcut) testFunc() {..} 则通过指针接收该结构体 最终main中test.id = 12，而非666
+}
+```
+* 结构体类型是值类型，在方法调用中，遵守值类型的传递机制，是值拷贝传递方式，如程序员希望在方法中修改结构体变量的值,可以通过结构体指针的方式来处理。Golang 中的方法作用在指定的数据类型上的（即：和指定的数据类型绑定），因此自定义类型都可以有方法，而不仅仅是 struct，比如 `int`，`float32`等都可以有方法，可通过`type myInt int`自定义这些数据类型。方法的访问范围控制的规则和函数一样。*方法名首字母小写，只能在本包访问，方法首字母大写，可以在本包和其它包访问。*
