@@ -1,8 +1,8 @@
-### go summary
-
+## go summary
 ---------------
 
 [go学习指南](https://tour.go-zh.org/welcome/1)
+
 [go标准库中文文档](https://studygolang.com/pkgdoc)
 
 -----------------
@@ -756,3 +756,192 @@ func main() {
 }
 ```
 * 结构体类型是值类型，在方法调用中，遵守值类型的传递机制，是值拷贝传递方式，如程序员希望在方法中修改结构体变量的值,可以通过结构体指针的方式来处理。Golang 中的方法作用在指定的数据类型上的（即：和指定的数据类型绑定），因此自定义类型都可以有方法，而不仅仅是 struct，比如 `int`，`float32`等都可以有方法，可通过`type myInt int`自定义这些数据类型。方法的访问范围控制的规则和函数一样。*方法名首字母小写，只能在本包访问，方法首字母大写，可以在本包和其它包访问。*
+* 如果一个类型实现了`String()`这个方法，那么`fmt.Println`默认会调用这个变量的`String()`进行输出，如下：
+```go
+//根据以上猜测如下代码 对map是拷贝还是引用传递？
+type testStruct struct {
+	id          int
+	name_to_age map[string]string
+}
+
+func (test testStruct) String() string {
+	str := fmt.Sprintf("aaa: %v", test.id)
+	return str
+}
+
+func main() {
+	var test testStruct
+	test.id = 666
+	test.name_to_age = map[string]string{"name": "郭晨", "age": "22"}
+	fmt.Println(test) //如果定义String()方法 则fmt.Println调用其对应String()方法
+	// result:
+	// aaa: 666
+}
+```
+
+| 方法/函数区别  | 方法  |函数|
+|---|---|--|
+|  调用方式不同 | 函数的调用方式：函数名(实参列表)|方法的调用方式：变量.方法名(实参列表)|
+|传参方面有差异，(*重要*)|对普通函数，接收者为值类型时不能将指针类型的数据直接传递，即函数形参指针只能接受地址而不能接收值；反过来函数形参为值类型，那就不能传个地址过去。|对于方法（如struct的方法），接收者为值类型时可以直接用指针类型的变量调用方法，反过来同样也可以；即系统会帮我们优化，比如指针*p接收方法，正确写法为：`(&ptr).Method()`，但是操作系统优化了，也可以写为`ptr.Method()`，本质都是引用传递，如果值接收方法，如`func (p Person) Method() {..}`，正确调用方法的写法为`p.Method()`，优化也可写为`(&p).Method()`，但本质都是值传递，这点与C语言不同，切记！|
+总结：
+1. 不管调用形式如何，真正决定是值拷贝还是地址拷贝，看这个方法是和哪个类型绑定。
+2. 如果是和值类型，比如(p Person)，则是值拷贝；如果和指针类型，比如是(p *Person)则是地址拷贝。
+
+-------------
+### 封装
+* 工厂模式使用场景：当需要在别的包使用某个结构体时，这个结构体名首字母又是小写，但是还想使用这个结构体时，可以通过工厂模式取解决这个问题，实际上就是在结构体包中重新定义一个函数，然后该函数返回一个指针（结构体地址），然后在main包中调用该函数来获取对结构体的访问；但不排除结构体中有小写字母字段，这个时候外部无法访问，那么可以在结构体所在包中写一个首字母大写的结构体方法，然后main引入包后可调用其方法，从而获取结构体中的私有字段（首字母小写）。
+* 特别说明：在Golang开发中并没有特别强调封装，这点并不像Java。所以不要总是用java的语法特性来看待Golang，Golang本身对面向对象的特性做了简化的。
+
+------------
+### 继承
+* 结构体嵌入两个（或多个）匿名结构体，如两个匿名结构体有相同的字段和方法（同时结构体本身没有同名的字段和方法），在访问时，就必须明确指定匿名结构体名字，否则编译报错。
+* 如果一个 struct 嵌套了一个有名结构体，这种模式就是*组合*，如果是*组合*关系，那么在访问组合的结构体的字段或方法时，*必须带上结构体的名字*。嵌套匿名结构体后，也可以在创建结构体变量（实例）时，直接指定各个匿名结构体字段的值，如下`Juiner`结构体类型的`stu`可直接指定`Student结构体`的`PrintInfo()`方法，因为Student结构体为匿名结构体：
+```go
+type Student struct {
+	Name string
+	Age  int
+}
+
+type Juiner struct {
+	Student
+}
+
+func (stu *Student) PrintInfo() {
+	fmt.Printf("student Name: %s\tstudent Age: %d\n", stu.Name, stu.Age)
+}
+
+func main() {
+	stu := Juiner{
+		Student{
+			Age:  22,
+			Name: "郭晨",
+		},
+	}
+	stu.Student.PrintInfo()
+	stu.PrintInfo()
+}
+```
+* 如果一个结构体有 int 类型的匿名字段，就不能第二个。如果需要有多个 int 的字段，则必须给 int 字段指定名字，如下：
+```go
+type A struct {
+	name string
+	int
+}
+
+func main() {
+	var a A = A{"guochen", 2}
+	fmt.Println(a) //{guochen 2}
+}
+```
+* 多重继承：如一个 struct 嵌套了多个匿名结构体，那么该结构体可以直接访问嵌套的匿名结构体的字段和方法，从而实现了多重继承；若嵌入的多个匿名结构体中有相同的字段名或者方法名，则在访问时，需要通过匿名结构体类型名来区分，为了保证代码的简洁性，尽量不使用多重继承，实例代码如下：
+```go
+type Goods struct {
+	Name  string
+	Price int
+}
+
+type Brand struct {
+	Name    string
+	Address string
+}
+
+type TV struct {
+	Goods
+	Brand
+}
+
+func main() {
+	tv := TV{Goods{"液晶电视", 2499}, Brand{"hasee", "陕西省西安市"}}
+	fmt.Println(tv.Goods.Name) //不能直接tv.Name 因为Goods和Brand中均有Name字段
+}
+```
+
+-------
+### 多态
+* 接口第一种简单使用：
+```go
+//声明/定义一个接口
+type Usb interface {
+	Start()
+	Stop()
+}
+
+type Phone struct {
+}
+func (p Phone) Start() {
+	fmt.Println("phone start working...")
+}
+func (p Phone) Stop() {
+	fmt.Println("phone stop working...")
+}
+
+type Camera struct {
+}
+func (c Camera) Start() {
+	fmt.Println("camera start working...")
+}
+func (c Camera) Stop() {
+	fmt.Println("camera stop working...")
+}
+
+type Computer struct {
+}
+//编写一个方法接收Usb接口类型
+//只要实现了Usb接口 （所谓实现Usb接口 就是指实现了Usb接口声明所有方法）
+//接口默认指针类型，传值传的是引用
+func (c Computer) Working(usb Usb) {
+	usb.Start()
+	usb.Stop()
+}
+
+func main() {
+	computer := Computer{}
+	camera := Camera{}
+	phone := Phone{}
+
+	computer.Working(phone)
+	computer.Working(camera)
+	//result
+	// phone start working...
+	// phone stop working...
+	// camera start working...
+	// camera stop working...
+}
+```
+
+* 接口的第二种使用方式，直接定义：
+```go
+type AInterface interface {
+	Say()
+}
+
+type sa struct {
+}
+
+func (obj sa) Say() {
+	fmt.Println("Hello")
+}
+
+func main() {
+	var obj sa
+	var ifc AInterface = obj
+	ifc.Say()
+}
+```
+* 接口里的所有方法都没有方法体，即接口的方法都是没有实现的方法。接口体现了程序设计的*多态*和*高内聚低偶合*的思想。Golang 中的接口不需要显式的实现。只要一个变量，含有接口类型中的所有方法，那么这个变量就实现这个接口，也就是说*实现一个接口意味着实现该接口中所有方法*。接口本身可以指向一个实现了该接口的自定义类型的变量（实例）。
+* Golang 接口定义/声明中不能有任何变量；只要是自定义类型，都可以实现接口，而不仅仅是结构体。
+* 如果A接口中有B接口、C接口，那么如果要通过A接口调用方法，A接口必须把B、C接口的方法都实现才可以。空接口`interface{}`没有任何方法，所以所有类型都实现了空接口，即我们可以把任何一个变量赋给空接口。可以自己写一个空接口，也可以使用`interface{}`这种写法：
+```go
+type emptyifc interface{
+}
+
+func main() {
+	var obj int
+
+	//空接口接收
+	//方式1
+	var ifc emptyifc = obj
+	//方式2
+	var fic interface{} = obj
+}
+```
