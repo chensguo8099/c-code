@@ -6,7 +6,6 @@
 [go标准库中文文档](https://studygolang.com/pkgdoc)
 
 -----------------
-
 * go函数可以直接支持返回多个返回值，在C/C++中需要通过数组返回。
 
 ```go
@@ -340,7 +339,8 @@ rand.Seed(time.Now().UnixNano())
 randNum := rand.Intn(100) //随机一个[0, 100)的数
 ```
 
-___________
+----------
+### 异常处理
 * Go异常处理通过`defer + recover`实现，并且必须写在可能出现异常部分的前方，如下：
 ```go
 //recover必须写在捕捉到异常之前
@@ -376,7 +376,8 @@ func catchErr2() {
 }
 ```
 
-__________
+-------------
+### 数组、slice切片、rune切片
 * 数组定义三种方式即`for-range`遍历方式：
 ```go
 func arrDefine() {
@@ -459,6 +460,7 @@ func sliceModifyString() {
 ```
 
 ---------
+### map及map切片
 * golang中的`map`的`key`可以是很多种类型，比如 bool，数字，string，指针，channel，还可以是只包含前面几个类型的接口，结构体，数组，通常`key`为`int`、`string`，注意：slice，map 还有 function 不可以作`key`，因为这几个没法用 == 来判断。
 * map 在使用前一定要 make。map 的 key 是不能重复，如果重复了，则以最后这个 key-value 为准。map 的 value 是可以相同的。map 的 key-value 是无序。
 * map创建的三种方式如下：
@@ -793,7 +795,7 @@ func main() {
 * 特别说明：在Golang开发中并没有特别强调封装，这点并不像Java。所以不要总是用java的语法特性来看待Golang，Golang本身对面向对象的特性做了简化的。
 
 ------------
-### 继承
+### 继承（结构体嵌套）
 * 结构体嵌入两个（或多个）匿名结构体，如两个匿名结构体有相同的字段和方法（同时结构体本身没有同名的字段和方法），在访问时，就必须明确指定匿名结构体名字，否则编译报错。
 * 如果一个 struct 嵌套了一个有名结构体，这种模式就是*组合*，如果是*组合*关系，那么在访问组合的结构体的字段或方法时，*必须带上结构体的名字*。嵌套匿名结构体后，也可以在创建结构体变量（实例）时，直接指定各个匿名结构体字段的值，如下`Juiner`结构体类型的`stu`可直接指定`Student结构体`的`PrintInfo()`方法，因为Student结构体为匿名结构体：
 ```go
@@ -857,7 +859,7 @@ func main() {
 ```
 
 -------
-### 多态
+### 多态（接口实现，多态简单实现）
 * 接口第一种简单使用：
 ```go
 //声明/定义一个接口
@@ -889,6 +891,8 @@ type Computer struct {
 //编写一个方法接收Usb接口类型
 //只要实现了Usb接口 （所谓实现Usb接口 就是指实现了Usb接口声明所有方法）
 //接口默认指针类型，传值传的是引用
+
+//usb Usb就实现了多态，既可以接收camera 又可以接收phone
 func (c Computer) Working(usb Usb) {
 	usb.Start()
 	usb.Stop()
@@ -943,5 +947,517 @@ func main() {
 	var ifc emptyifc = obj
 	//方式2
 	var fic interface{} = obj
+}
+```
+* 通过接口实现自定义Sort，不如对map中的age排序，如下：
+```go
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"sort"
+)
+
+/* //实现一个sor.Sort()接口
+type Interface interface {
+    // Len方法返回集合中的元素个数
+    Len() int
+    // Less方法报告索引i的元素是否比索引j的元素小
+    Less(i, j int) bool
+    // Swap方法交换索引i和j的两个元素
+    Swap(i, j int)
+}
+*/
+//模拟通过age进行排序
+type Student struct {
+	No        int
+	NameToAge map[string]string
+}
+
+type stuSlice []Student
+
+func (stu stuSlice) Len() int {
+	return len(stu)
+}
+
+func (stu stuSlice) Less(i, j int) bool {
+	return stu[i].NameToAge["age"] < stu[j].NameToAge["age"]
+}
+
+func (stu stuSlice) Swap(i, j int) {
+	stu[i], stu[j] = stu[j], stu[i]
+}
+
+func main() {
+	var stuInfo stuSlice
+	for i := 0; i < 50; i++ {
+		// stuInfo[].No = rand.Intn(100)
+		stu := Student{
+			No: rand.Intn(100),
+		}
+		stu.NameToAge = make(map[string]string, 2)
+		stu.NameToAge["name"] = fmt.Sprintf("hero%d", rand.Intn(100))
+		stu.NameToAge["age"] = fmt.Sprintf("%d", rand.Intn(10)+18)
+
+		stuInfo = append(stuInfo, stu)
+	}
+
+	for _, val := range stuInfo {
+		fmt.Println(val)
+	}
+	//排序前
+	fmt.Println("sort begin.............")
+	sort.Sort(stuInfo)
+	fmt.Println("sort end...............")
+
+	for _, val := range stuInfo {
+		fmt.Println(val)
+	}
+}
+```
+* 继承和接口的区别：继承从词义理解则是*获取所要继承的对象的所有方法和字段*；*接口则是对继承的补充*，比如小猴子继承老猴子的方法和字段以后，如果小猴子想要学习像鸟儿那样飞翔，解决方法有两种，一种是直接给老猴子定义会飞翔，但是这种方法就破坏了继承的意义，修改飞翔方法则会使老猴子的方法和字段发生改变，第二种方式则小猴子学习飞翔，通过接口来实现飞翔的方法，这就意味着接口对继承的补充。（显然第二种方法更加合适）
+* 当 A 结构体继承了 B 结构体，那么 A 结构就自动的继承了 B 结构体的字段和方法，并且可以直接使用；当 A 结构体需要扩展功能，同时不希望去破坏继承关系，则可以去实现某个接口即可，因此我们可以认为：实现接口是对继承机制的补充。
+* 接口和继承解决的解决的问题不同，继承的价值主要在于：解决代码的复用性和可维护性。接口的价值主要在于设计，设计好各种规范（方法），让其它自定义类型去实现这些方法。接口在一定程度上实现代码解耦。
+* 多态数组的引入：
+```go
+type Usb interface {
+	//声明了两个没有实现的方法
+	Start()
+	Stop()
+}
+
+type Phone struct {
+	name string
+}
+
+//让 Phone 实现 Usb 接口的方法
+func (p Phone) Start() {
+	fmt.Println("手机开始工作。。。")
+}
+
+func (p Phone) Stop() {
+	fmt.Println("手机停止工作。。。")
+}
+
+type Camera struct {
+	name string
+}
+
+//让 Camera 实现
+// Usb 接口的方法
+func (c Camera) Start() {
+	fmt.Println("相机开始工作。。。")
+}
+
+func (c Camera) Stop() {
+	fmt.Println("相机停止工作。。。")
+}
+
+func main() {
+	//定义一个 Usb 接口数组,可以存放 Phone 和 Camera 的结构体变量
+	//这里就体现出多态数组
+	var usbArr [3]Usb
+	usbArr[0] = Phone{"vivo"}
+	usbArr[1] = Phone{"小米"}
+	usbArr[2] = Camera{"尼康"}
+}
+```
+* 类型断言：
+```go
+type Point struct {
+	x float64
+	y float64
+}
+
+func main() {
+	var pointA Point
+	var ifc interface{}
+	pointA = Point{3.1, 2.2}
+	ifc = pointA
+	var pointB Point
+	//error
+	// pointB = ifc
+	//类型断言的方式将空接口接收的变量转换给另一变量
+	pointB = ifc.(Point)
+	fmt.Println(pointB)
+}
+```
+* 在进行类型断言时如果类型不匹配，就会报 panic，因此进行类型断言时，要确保原来的空接口指向的就是断言的类型。如果在进行断言时带上检测机制，如果成功就 ok，否则也不要报 panic，否则会终止程序。假如obj为float32类型
+```go
+obj, judge := ifc.(float64)
+if judge == true {
+	...
+}else{
+	fmt.Println("convert failed")
+}
+fmt.Println("继续执行")//该句还会执行
+
+//另一种简洁写法为：
+if obj, judge := ifc.(float64); judge {
+	...
+}else{
+	fmt.Println("convert failed")
+}
+fmt.Println("继续执行")
+```
+* 一般类型断言用于对接口的实现中，接口接收对象，对类型进行断言，做出不同的业务逻辑，如下代码则是对phone的类型断言，当为phone时调用phone.Call():
+```go
+type Phone struct {
+	name string
+}
+//让 Phone 实现 Usb 接口的方法
+func (p Phone) Start() {
+	fmt.Println("手机开始工作。。。")
+}
+func (p Phone) Stop() {
+	fmt.Println("手机停止工作。。。")
+}
+func (p Phone) Call() {
+	fmt.Println("手机 在打电话..")
+}
+type Camera struct {
+	name string
+}
+//让 Camera 实现
+// Usb 接口的方法
+func (c Camera) Start() {
+	fmt.Println("相机开始工作。。。")
+}
+func (c Camera) Stop() {
+	fmt.Println("相机停止工作。。。")
+}
+type Computer struct {
+}
+func (computer Computer) Working(usb Usb) {
+	usb.Start()
+	//如果 usb 是指向 Phone 结构体变量,则还需要调用 Call 方法
+	//类型断言..[注意体会!!!]
+	if phoneObj, judge := usb.(Phone); judge {
+		phoneObj.Call()
+	}
+	usb.Stop()
+}
+func main() {
+	//定义一个 Usb 接口数组,可以存放 Phone 和 Camera 的结构体变量
+	//这里就体现出多态数组
+	var usbArr [3]Usb
+	usbArr[0] = Phone{"vivo"}
+	usbArr[1] = Phone{"小米"}
+	usbArr[2] = Camera{"尼康"}
+	//遍历 usbArr
+	//Phone 还有一个特有的方法 call(),请遍历 Usb 数组,如果是 Phone 变量,
+	//除了调用 Usb 接口声明的方法外,还需要调用 Phone 特有方法 call. =》类型断言
+	var computer Computer
+	for _, v := range usbArr{
+		computer.Working(v)
+		fmt.Println()
+	}
+	//fmt.Println(usbArr)
+}
+```
+
+---------
+### 文件操作（文件打开关闭、读写、拷贝等）
+* 文件的打开：`os.Open(string)`，文件的关闭：`file.Close()`，代码如下：
+```go
+//文件的打开os.Open和关闭file.Close
+func test1() {
+	file, err := os.Open("/home/chenguo/code/go/src/go_code/project7/file.txt")
+	if err != nil {
+		fmt.Println("file open err:", err)
+		return
+	}
+	//file实际上是一个指针
+	fmt.Printf("file:%v\n", file)
+	if err = file.Close(); err != nil {
+		fmt.Println("close file err:", err)
+		return
+	}
+}
+```
+* 读取文件的内容并显示在终端（带缓冲区的方式），使用`os.Open(string)`，`file.Close()`，`reader, err := bufio.NewReader()`，`reader.ReadString([]byte)`函数和方法。
+```go
+//文件内容的读取
+func test2() {
+	file, err := os.Open("/home/chenguo/code/go/src/go_code/project7/file.txt")
+	if err != nil {
+		fmt.Println("file open error :", err)
+		return
+	}
+	//当函数退出时及时关闭该文件
+	defer file.Close()
+
+	//reader *Reader
+	// func NewReader(rd io.Reader) *Reader
+	// NewReader创建一个具有默认大小缓冲（4096）、从r读取的*Reader。
+	reader := bufio.NewReader(file)
+	for {
+		//当独到换行时结束
+		str, err := reader.ReadString('\n')
+		if err == io.EOF {
+			break
+		}
+		fmt.Print(str)
+	}
+	fmt.Println("file read over")
+}
+```
+* 读取文件的内容并显示在终端（使用`ioutil`一次将整个文件读入到内存中），这种方式适用于文件不大的情况。相关方法和函数（ioutil.ReadFile）
+```go
+func test3() {
+	content, err := ioutil.ReadFile("/home/chenguo/code/go/src/go_code/project7/file.txt")
+	if err != nil {
+		fmt.Println("file read err :", err)
+	}
+	fmt.Printf("%v", string(content)) //因为ioutil.ReadFile返回的是[]byte切片 所以需要将其转为字符串 否则打印的是一串数字
+}
+```
+* 通过`os.OpenFile()`打开文件，使用`writer := bufio.NewWriter(file)`创建`writer`，并调用其方法`WriteString`方法向文件写入字符串：
+```go
+//写文件
+func test4() {
+	path := "/home/chenguo/code/go/src/go_code/project7/file.txt"
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		fmt.Printf("open err :%v\n", err)
+		return
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	str := "hello world\n"
+	for i := 0; i < 5; i++ {
+		//将str写入writer的缓存中
+		writer.WriteString(str)
+	}
+	//将缓存内容写入文件
+	writer.Flush()
+}
+```
+```go
+// 编程一个程序，将一个文件的内容写入到另外一个文件。注：这两个文件已经存在了。
+// 说明：使用 ioutil.ReadFile / ioutil.WriteFile 完成写文件的任务。
+
+// func ReadFile(filename string) ([]byte, error)
+// ReadFile 从filename指定的文件中读取数据并返回文件的内容。成功的调用返回的err为nil而非EOF。
+// 因为本函数定义为读取整个文件，它不会将读取返回的EOF视为应报告的错误。
+
+// func WriteFile(filename string, data []byte, perm os.FileMode) error
+// 函数向filename指定的文件中写入数据。如果文件不存在将按给出的权限创建文件，否则在写入数据之前清空文件。
+func test5() {
+	filePATH := "/home/chenguo/code/go/src/go_code/project7/file.txt"
+	content, err := ioutil.ReadFile(filePATH)
+	if err != nil {
+		fmt.Println("read error :", err)
+		return
+	}
+	fileCopyPATH := "/home/chenguo/code/go/src/go_code/project7/filecopy.txt"
+	err = ioutil.WriteFile(fileCopyPATH, content, 0666)
+	if err != nil {
+		fmt.Println("read error :", err)
+		return
+	}
+}
+```
+* 文件拷贝实现（调用Copy函数）：
+```go
+package main
+import (
+	"fmt"
+	"os"
+	"io"
+	"bufio"
+)
+//自己编写一个函数,接收两个文件路径 srcFileName dstFileName
+func CopyFile(dstFileName string, srcFileName string) (written int64, err error) {
+	srcFile, err := os.Open(srcFileName)
+	if err != nil {
+		fmt.Printf("open file err=%v\n", err)
+	}
+	defer srcFile.Close()
+	//通过 srcfile ,获取到 Reader
+	reader := bufio.NewReader(srcFile)
+	//打开 dstFileName
+	dstFile, err := os.OpenFile(dstFileName, os.O_WRONLY | os.O_CREATE, 0666)
+	if err != nil {
+		fmt.Printf("open file err=%v\n", err)
+		return
+	}
+	defer dstFile.Close()
+//通过 dstFile, 获取到 Writer
+	writer := bufio.NewWriter(dstFile)
+	return io.Copy(writer, reader)
+}
+func main() {
+	//将 d:/flower.jpg 文件拷贝到 e:/abc.jpg
+	//调用 CopyFile 完成文件拷贝
+	srcFile := "d:/flower.jpg"
+	dstFile := "e:/abc.jpg"
+	_, err := CopyFile(dstFile, srcFile)
+	if err == nil {
+		fmt.Printf("拷贝完成\n")
+	} else {
+		fmt.Printf("拷贝错误 err=%v\n", err)
+	}
+}
+```
+* 函数命令行参数可使用`os.Args`实现，但实现方法单一；也可使用`flag.StringVar`或`flag.IntVar`等方法实现指定的命令行参数。
+
+---------
+### json序列化及反序列化
+* 对结构体、map、slice、基本数据类型序列化及反序列化，实例代码如下：
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type Monster struct {
+	Name     string
+	Age      int
+	Birthday string
+	Sal      float64
+	Skill    string
+}
+
+//将结构体进行序列化
+// 对于结构体的序列化，如果我们希望序列化后的 key 的名字，又我们自己重新制定，那么可以给 struct 指定一个 tag 标签。
+func testStruct() {
+	monster := Monster{"牛魔王", 500, "2011-11-11", 8000.0, "牛魔拳"}
+	data, err := json.Marshal(&monster)
+	if err != nil {
+		fmt.Println("序列化失败")
+	}
+
+	//输出序列化后的结果
+	fmt.Printf("struct序列化后%v\n", string(data))
+
+}
+
+//将map进行序列化
+func testMap() {
+	var a map[string]interface{}
+	a = make(map[string]interface{})
+	a["name"] = "红孩儿"
+	a["age"] = 30
+	a["address"] = "洪崖洞"
+
+	//map本身是指针 所以直接传a 而不需要取地址
+	data, err := json.Marshal(a)
+	if err != nil {
+		fmt.Println("序列化失败")
+	}
+	fmt.Printf("map序列化后:%v\n", string(data))
+}
+
+//将切片序列化
+func testSlice() {
+	var slice []map[string]interface{}
+
+	var m1 map[string]interface{}
+	m1 = make(map[string]interface{})
+	m1["name"] = "jack"
+	m1["age"] = 17
+	m1["address"] = "西安"
+	slice = append(slice, m1)
+
+	var m2 map[string]interface{}
+	m2 = make(map[string]interface{})
+	m2["name"] = "jerry"
+	m2["age"] = 22
+	m2["address"] = "咸阳"
+	slice = append(slice, m2)
+
+	//将slice序列化
+	data, err := json.Marshal(slice)
+	if err != nil {
+		fmt.Println("序列化失败")
+	}
+	fmt.Printf("slice序列化后:%v\n", string(data))
+}
+
+//对基本类型序列化 但是对基本类型序列化意义不大
+func testFloat64() {
+	var num1 float64
+	num1 = 13.6
+	data, err := json.Marshal(&num1)
+	if err != nil {
+		fmt.Println("序列化失败")
+	}
+	fmt.Printf("float64序列化后:%v\n", string(data))
+}
+
+//将json反序列化为struct
+func unmarshalStruct() {
+	str := "{\"monster_name\":\"牛魔王\",\"monster_age\":500,\"monster_brithday\":\"2011-11-11\",\"monster_salary\":8000,\"monster_skill\":\"牛魔拳\"}"
+
+	var monster Monster
+	err := json.Unmarshal([]byte(str), &monster)
+	if err != nil {
+		fmt.Println("反序列化失败 ", err)
+		return
+	}
+	fmt.Printf("struct反序列化后：%v\t monster.Name：%s\n", monster, monster.Name)
+	//反序列化后：{牛魔王 500 2011-11-11 8000 牛魔拳}  monster.Name：牛魔王
+}
+
+//将json反序列化为map
+func unmarshalMap() {
+	str := "{\"address\":\"洪崖洞\",\"age\":30,\"name\":\"红孩儿\"}"
+
+	var a map[string]interface{}
+	//不是很理解a为何不是指针类型 要传地址
+	//如果不传地址 会报错：json: Unmarshal(non-pointer map[string]interface {})
+	//注意：反序列化时不需要make 因为make操作已封装至Unmarshal中
+	err := json.Unmarshal([]byte(str), &a)
+	if err != nil {
+		fmt.Println("反序列化失败 ", err)
+		return
+	}
+	fmt.Printf("map反序列化后：%v\n", a)
+}
+
+//将json反序列化为slice
+func unmarshalSlice() {
+	str := "[{\"address\":\"西安\",\"age\":17," +
+		"\"name\":\"jack\"},{\"address\":\"咸阳\",\"age\":22,\"name\":\"jerry\"}]"
+
+	var slice []map[string]interface{}
+	err := json.Unmarshal([]byte(str), &slice)
+	if err != nil {
+		fmt.Println("反序列化失败 ", err)
+		return
+	}
+	fmt.Printf("slice反序列化后：%v\n", slice)
+}
+
+func main() {
+	//json格式序列化
+	testStruct()
+	testMap()
+	testSlice()
+	testFloat64()
+
+	//json格式反序列化
+	unmarshalStruct()
+	unmarshalMap()
+	unmarshalSlice()
+
+	//result
+	// struct序列化后{"monster_name":"牛魔王","monster_age":500,"monster_brithday":"2011-11-11","monster_salary":8000,"monster_skill":"牛魔拳"}
+	// map序列化后:{"address":"洪崖洞","age":30,"name":"红孩儿"}
+	// slice序列化后:[{"address":"西安","age":17,"name":"jack"},{"address":"咸阳","age":22,"name":"jerry"}]
+	// float64序列化后:13.6
+	// struct反序列化后：{牛魔王 500 2011-11-11 8000 牛魔拳}    monster.Name：牛魔王
+	// map反序列化后：map[address:洪崖洞 age:30 name:红孩儿]
+	// slice反序列化后：[map[address:西安 age:17 name:jack] map[address:咸阳 age:22 name:jerry]]
+
+
+	//小结
+	// 1. 在反序列化一个 json 字符串时，要确保反序列化后的数据类型和原来序列化前的数据类型一致。
+  // 2. 如果 json 字符串是通过程序获取到的，则不需要再对字符串中""进行\转义处理
 }
 ```
